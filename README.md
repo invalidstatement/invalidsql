@@ -1,0 +1,1 @@
+A MySQLOO wrapper for Garry's Mod. It's fully asynchronous and contains all the functions you should need when working with MySQLOO. Faults may always exist, so please report them on this repository.
