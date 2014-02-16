@@ -16,48 +16,54 @@
 	If you disagree with the above, don't use the code.
 --]]
 
-local fortwars, hook, pcall, pairs, tostring, require, MsgN, error = fortwars, hook, pcall, pairs, tostring, require, MsgN, error
-local database
+local hook, pairs, tostring, require, MsgC, color, error = hook, pairs, tostring, require, MsgC, color;
+local database;
 
-require("mysqloo")
+--[[
+	Purpose: print data accordingly.
+]]
+local function PrintSuccess(_message)
+	MsgC(Color(0, 255, 0), _message .. "\n");
+end
 
-invalidsql = {}
+--[[
+	Purpose: connect to the database.
+]]
+function MySQL.Connect(_host, _user, _pass, _name, _port)
+	if (mysqloo) then
+		PrintSuccess("MySQLOO modules found.");
+		
+		local _database = mysqloo.connect(_host, _user, _pass, _name, _port);
 
-function invalidsql.Connect(host, user, pass, name, port)
-	if mysqloo then
-		MsgN("MySQL modules found!")
-		MsgN("Connecting to DataBase "..name.." at "..host)
-
-		local _database = mysqloo.connect(host, user, pass, name, port)
-
-		_database.onConnectionFailed = function(msg)
-			error("Failed to connect!")
+		function _database.onConnectionFailed(_message)
+			if (_message) then
+				error(_message);
+			end
 		end
 		
-		_database.onConnected = function()
-			MsgN("Connected to DataBase "..name.." at "..host)
-			hook.Call("DatabaseConnected")
+		function _database.onConnected()
+			PrintSuccess("Connected to database " .. _name);
+			hook.Call("DatabaseConnected");
 		end
-		
-		_database:connect()
-		database = _database
-	else
-		error("MySQL modules are not installed properly!")
+
+		_database:connect();
+		database = _database;
 	end
 end
 
-function invalidsql.Query(query, callback)
-	local _query = database:query(query)
-	_query:start()
-	_query:wait()
+--[[
+	Purpose: issue a query, and return the data.
+]]
+function MySQL.Query(_sql, callback)
+	local _query = database:query(_sql);
 
-	if _query:error() == "" then
-		return _query:getData(), true
-	else
-		return nil, false
+	function _query:onSuccess(_data)
+		callback(_data);
 	end
-end
 
-function invalidsql.SQLStr(str)
-	return "\"" .. database:escape(tostring(str)) .. "\""
+	function _query:onError(_error)
+		error("Query errored!");
+	end
+
+	_query:start();
 end
