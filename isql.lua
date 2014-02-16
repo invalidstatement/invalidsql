@@ -16,7 +16,7 @@
 	If you disagree with the above, don't use the code.
 --]]
 
-local hook, pairs, tostring, require, MsgC, color, error = hook, pairs, tostring, require, MsgC, color;
+local hook, pairs, tostring, require, MsgC, color, error, print = hook, pairs, tostring, require, MsgC, color, error, print;
 local database;
 
 --[[
